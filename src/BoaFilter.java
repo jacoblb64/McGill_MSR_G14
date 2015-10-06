@@ -61,7 +61,7 @@ public class BoaFilter {
 					
 					}
 					else {
-						System.out.println("Data set " + z + " selected!");
+						System.out.println("Data set " + availDataSets[z-1] + " selected!");
 						retry = false;
 						
 					}
