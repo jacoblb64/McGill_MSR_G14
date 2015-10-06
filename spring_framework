@@ -1,0 +1,29 @@
+# How many projects use Spring?
+SPRING: output sum of int;
+
+spring := false;
+
+visit(input, visitor {
+    after node: Project ->
+        if (spring)
+            SPRING << 1;
+  # only look at the latest snapshot of Java files
+  before n: CodeRepository -> {
+    snapshot := getsnapshot(n, "SOURCE_JAVA_JLS");
+    foreach (i: int; def(snapshot[i]))
+      visit(snapshot[i]);
+    stop;
+  }
+  # look for imports
+  before node: ASTRoot ->
+      exists(j: int; match("^org\\.springframework\\.", node.imports[j])) {
+      spring = true;
+      stop;
+      }
+  # look for FQN
+  before node: Type ->
+      if (match("^org\\.springframework\\.", node.name)) {
+      spring = true;
+      stop;
+      }
+});
