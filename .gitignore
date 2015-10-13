@@ -5,7 +5,6 @@
 .idea/
 *.eml
 *.iml
-bin/
 ### Java template
 *.class
 
