@@ -78,6 +78,8 @@ public class BoaFilter {
 			System.exit(0);
 		}
 		
+		userInput.close();
+		
 		// ************ End User Interface ************
 		
 		// Queries to be run
