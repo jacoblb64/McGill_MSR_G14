@@ -1,0 +1,72 @@
+# Counting the number of active Java projects with SVN
+p:Project = input;
+
+committers: output sum[int] of int;
+java_projects: output sum of int;
+java_repos: output sum of int;
+empty_list: output collection [int] of string;
+junit_projects: output sum of int;
+junit_project_committers: output sum[int] of int;
+junit_projects_commiters_gt4_commits: output sum[int] of int;
+junit_projects_commiters_gt4_commits_gt_20: output sum[int] of int;
+
+empty := false;
+names: map[string] of bool;
+index := 0;
+count :=0;
+
+junit := false;
+declarations : map[string] of bool;
+
+visit(p, visitor {
+  before n: Project -> {
+    ifall (i: int; !match(`^java$`, lowercase(n.programming_languages[i])))
+      stop;
+  }
+  before n: Person -> {
+      names[n.real_name] = true;
+  }
+
+  after cr: CodeRepository -> {
+    java_repos << 1;
+    committers[len(names)] << 1;
+    if (len(names) == 0) {
+      empty = true;
+    }
+    if (junit)
+    {
+      junit_projects << 1;
+      junit_project_committers[len(names)] << 1;
+      if (len(names) > 4) {
+        junit_projects_commiters_gt4_commits[len(cr.revisions)] << 1;
+        if (len(cr.revisions) > 20){
+          junit_projects_commiters_gt4_commits_gt_20[len(declarations)] << 1;
+        }
+      }
+    }
+    clear(names);
+  }
+  after n: Project -> {
+    java_projects << 1;
+    if (empty)
+    {
+      index = index + 1;
+    }
+  }
+   # look for imports
+  before node: ASTRoot ->
+      exists(j: int; match("^org\\.junit\\.", node.imports[j])) {
+      junit = true;
+      }
+
+  after n: Declaration -> {
+    declarations[n.name] = true;
+  }
+
+  # look for FQN
+  before node: Type ->
+      if (match("^org\\.junit\\.", node.name)) {
+      junit = true;
+      stop;
+      }
+});
