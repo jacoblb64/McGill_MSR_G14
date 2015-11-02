@@ -157,15 +157,13 @@ def filter_content_and_add(frameworks, contents, **kwargs):
                 # We need to do a replacement
                 for result in results:
                     lif, framework = result
-                    # TODO The contents indices dont match the lif indices
-                    # TODO Fix bug caused when there are multiple replacements in framework function
-                    # lif is a set
-                    framework.replace_content_from(list(
-                        contents[lif[0] - added_ln_num[0]: lif[0]+len(lif)+1 - added_ln_num[0]]), lif[0])
+                    # lif is a tuple of start index and end index
+                    framework.replace_content_from(
+                        list(contents[(lif[0] - added_ln_num[0]): (lif[1]+1 - added_ln_num[0])]), lif[0])
                 kwargs = dict(kwargs)
                 added_ln_num[0] += len(lif)
                 kwargs.update({"added_ln_num": added_ln_num})
-                filter_content_and_add(frameworks, contents[lif[1]+1 -:], **kwargs)
+                # filter_content_and_add(frameworks, contents[lif[1]+1 -:], **kwargs)
             else:
                 # Intersection must have been comments
                 pass
@@ -206,6 +204,7 @@ def ranges(i):
     for a, b in itertools.groupby(enumerate(i), function):
         b = list(b)
         yield b[0][1], b[-1][1]
+
 
 def add_content_to_framework(frameworks: list, content: list, **kwargs):
     # TODO figure out what to add/remove
@@ -275,9 +274,12 @@ class FrameworkFunction:
 
     def set_content(self, content: list):
         self.content = content
+        self.start_line = content[0]
+        self.update_end_line()
 
     def append_content_end(self, content: list):
         self.content += content
+        self.update_end_line()
 
     def replace_content_from(self, content: list, start_index: int):
         if start_index <= len(self.content) - 1:
@@ -285,11 +287,18 @@ class FrameworkFunction:
         else:
             self.append_content_end(content)
 
+        self.update_end_line()
+
     def insert_content_from(self, content: list, start_index: int):
         if start_index <= len(self.content) - 1:
             self.content = self.content[:start_index] + content + self.content[start_index:]
         else:
             self.append_content_end(content)
+
+        self.update_end_line()
+
+    def update_end_line(self):
+        self.end_line = self.start_line + len(self)  # Update end index
 
     def get_name(self) -> str:
         return self.name
