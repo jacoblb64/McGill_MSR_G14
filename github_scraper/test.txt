@@ -1,0 +1,211 @@
+a90524db6698578af8023b6eb6f76c5e673a99f6Charles Gathurucharlesgathuru@gmail.comFri Oct 2 20:21:32 2015 -0400[task] Added test code and ipaddress converision
+
+diff --git a/test/dnsclient/DnsClientTest.java b/test/dnsclient/DnsClientTest.java
+new file mode 100644
+index 0000000..c5535c6
+--- /dev/null
++++ b/test/dnsclient/DnsClientTest.java
+@@ -0,0 +1,80 @@
++/*
++ * To change this license header, choose License Headers in Project Properties.
++ * To change this template file, choose Tools | Templates
++ * and open the template in the editor.
++ */
++package dnsclient;
++
++import java.net.InetAddress;
++import org.junit.After;
++import org.junit.AfterClass;
++import org.junit.Before;
++import org.junit.BeforeClass;
++import org.junit.Test;
++import static org.junit.Assert.*;
++
++/**
++ *
++ * @author Charles
++ */
++public class DnsClientTest {
++    
++    public DnsClientTest() {
++    }
++    
++    @BeforeClass
++    public static void setUpClass() {
++    }
++    
++    @AfterClass
++    public static void tearDownClass() {
++    }
++    
++    @Before
++    public void setUp() {
++    }
++    
++    @After
++    public void tearDown() {
++    }
++
++    /**
++     * Test of main method, of class DnsClient.
++     */
++    @Test
++    public void testMain() {
++        System.out.println("main");
++        String[] args = null;
++        //DnsClient.main(args);
++        // TODO review the generated test code and remove the default call to fail.
++        //fail("The test case is a prototype.");
++    }
++
++    /**
++     * Test of checkDefaultArgs method, of class DnsClient.
++     */
++    @Test
++    public void testCheckDefaultArgs() {
++        System.out.println("checkDefaultArgs");
++        String server = "";
++        String name = "";
++        //DnsClient.checkDefaultArgs(server, name);
++        // TODO review the generated test code and remove the default call to fail.
++        //fail("The test case is a prototype.");
++    }
++
++    /**
++     * Test of getIpAddress method, of class DnsClient.
++     */
++    @Test
++    public void testGetIpAddress() throws Exception {
++        System.out.println("getIpAddress");
++        String address = "192.168.1.1";
++        InetAddress expResult = InetAddress.getByName(address);
++        InetAddress result = DnsClient.getIpAddress(address);
++        assertEquals(expResult, result);
++        // TODO review the generated test code and remove the default call to fail.
++        //fail("The test case is a prototype.");
++    }
++    
++}
+cc5df50faf17b686d66e2db5120bde2c9dabf3a4cgathurucharlesgathuru@gmail.comSat Oct 3 01:21:25 2015 -0400[task] Succesful Dns Loookup
+
+diff --git a/test/dnsclient/DnsClientTest.java b/test/dnsclient/DnsClientTest.java
+index c5535c6..83c6c62 100644
+--- a/test/dnsclient/DnsClientTest.java
++++ b/test/dnsclient/DnsClientTest.java
+@@ -44,8 +44,8 @@ public class DnsClientTest {
+     @Test
+     public void testMain() {
+         System.out.println("main");
+-        String[] args = null;
+-        //DnsClient.main(args);
++        String[] args = {"@8.8.8.8", "www.mcgill.ca"};
++        DnsClient.main(args);
+         // TODO review the generated test code and remove the default call to fail.
+         //fail("The test case is a prototype.");
+     }
+3daf6f9dac3e1dca4ff92e74c203882589990cb2cgathurucharlesgathuru@gmail.comSat Oct 3 03:42:07 2015 -0400[task] added more functionality
+
+diff --git a/test/dnsclient/DnsClientTest.java b/test/dnsclient/DnsClientTest.java
+index 83c6c62..c68bd46 100644
+--- a/test/dnsclient/DnsClientTest.java
++++ b/test/dnsclient/DnsClientTest.java
+@@ -44,7 +44,7 @@ public class DnsClientTest {
+     @Test
+     public void testMain() {
+         System.out.println("main");
+-        String[] args = {"@8.8.8.8", "www.mcgill.ca"};
++        String[] args = {"@8.8.8.8", "www.google.ca"};
+         DnsClient.main(args);
+         // TODO review the generated test code and remove the default call to fail.
+         //fail("The test case is a prototype.");
+ac080510c0afb5dc76333d3d278d35d0846073f7Charles Gathurucharlesgathuru@gmail.comMon Oct 12 08:37:46 2015 -0400Cleaned up code. Need to add some tests
+
+diff --git a/test/dnsclient/DnsClientTest.java b/test/dnsclient/DnsClientTest.java
+index c68bd46..faf12e8 100644
+--- a/test/dnsclient/DnsClientTest.java
++++ b/test/dnsclient/DnsClientTest.java
+@@ -44,7 +44,7 @@ public class DnsClientTest {
+     @Test
+     public void testMain() {
+         System.out.println("main");
+-        String[] args = {"@8.8.8.8", "www.google.ca"};
++        String[] args = {"@132.204.8.207", "www.google.ca"};
+         DnsClient.main(args);
+         // TODO review the generated test code and remove the default call to fail.
+         //fail("The test case is a prototype.");
+1f2d0de5e135a2df1a497576dba787bbc79d1090cgathurucharlesgathuru@gmail.comMon Oct 12 09:38:53 2015 -0400[Documentation][test] Updated docs and added tests
+
+diff --git a/test/dnsclient/DnsClientTest.java b/test/dnsclient/DnsClientTest.java
+index faf12e8..c2d72d9 100644
+--- a/test/dnsclient/DnsClientTest.java
++++ b/test/dnsclient/DnsClientTest.java
+@@ -49,6 +49,18 @@ public class DnsClientTest {
+         // TODO review the generated test code and remove the default call to fail.
+         //fail("The test case is a prototype.");
+     }
++    
++    /**
++     * Test of main method, of class DnsClient.
++     */
++    @Test
++    public void testMainGoogle() {
++        System.out.println("main");
++        String[] args = {"@8.8.8.8", "www.google.ca"};
++        DnsClient.main(args);
++        // TODO review the generated test code and remove the default call to fail.
++        //fail("The test case is a prototype.");
++    }
+ 
+     /**
+      * Test of checkDefaultArgs method, of class DnsClient.
+@@ -56,12 +68,47 @@ public class DnsClientTest {
+     @Test
+     public void testCheckDefaultArgs() {
+         System.out.println("checkDefaultArgs");
+-        String server = "";
+-        String name = "";
+-        //DnsClient.checkDefaultArgs(server, name);
++        String server = "blah";
++        String name = "123445";
++        DnsClient.checkDefaultArgs(server, name);
+         // TODO review the generated test code and remove the default call to fail.
+         //fail("The test case is a prototype.");
+     }
++    
++    @Test
++    public void testMainGoogleWrongDns() {
++        System.out.println("mainWrongDns");
++        String[] args = {"@hi", "www.google.ca"};
++        DnsClient.main(args);
++    }
++    
++     @Test
++    public void testMainGoogleWrongDomain() {
++        System.out.println("mainWrongDomain");
++        String[] args = {"@8.8.8.8", "happyfeet"};
++        DnsClient.main(args);
++    }
++    
++    @Test
++    public void testMainGoogleInavlidPort() {
++        System.out.println("mainGoogleInavlidPort");
++        String[] args = {"@8.8.8.8", "-p", "fries", "www.google.ca", };
++        DnsClient.main(args);
++    }
++    
++    @Test
++    public void testMainGooglePort58() {
++        System.out.println("mainGooglePort58");
++        String[] args = {"@8.8.8.8", "-p", "58", "www.google.ca", };
++        DnsClient.main(args);
++    }
++    
++    @Test
++    public void testMainGooglePortNeg() {
++        System.out.println("mainGoogleNegPort");
++        String[] args = {"@8.8.8.8", "-p", "-53", "www.google.ca", };
++        DnsClient.main(args);
++    }
+ 
+     /**
+      * Test of getIpAddress method, of class DnsClient.
