@@ -4,5 +4,6 @@
 	<classpathentry excluding="src/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="libraries/boa-client-0.1.0/boa-client-0.1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Python 3.4.3 (C:\Program Files\Anaconda3\python.exe) interpreter library"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
