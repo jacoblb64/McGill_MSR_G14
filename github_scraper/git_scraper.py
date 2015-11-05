@@ -26,7 +26,7 @@ def get_file_output(repository_info, filename):
     git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'stat']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
-    options = ' log --follow --reverse --stat --format="%s"'
+    options = ' log --follow -p --reverse --stat --format="%s"'
     command = 'git' + options
 
     print("Trying to run " + command + options % git_log_format + " " + filename)
@@ -45,6 +45,9 @@ def get_file_output(repository_info, filename):
                                re.IGNORECASE | re.MULTILINE)
     count_add = 0
     count_minus = 0
+
+    added_content = []
+    removed_content = []
 
     for row in log:
         m1 = bug_msg.search(row['message_header'])
@@ -65,6 +68,16 @@ def get_file_output(repository_info, filename):
             if m:
                 count_add += int(m.group('insertions'))
                 count_minus += int(m.group('deletions'))
+
+                lines = row['stat'].split("\n")
+                print(lines)
+                for line in lines:
+                    if line.startswith("+ "):
+                        added_content.append(line[1:])
+                    elif line.startswith("- "):
+                        removed_content.append(line[1:])
+                    else:
+                        pass
 
     repo_content = (filename, count_add, count_minus)
     print(repo_content)
