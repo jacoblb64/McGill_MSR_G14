@@ -30,8 +30,8 @@ def get_file_output(filename):
     (log, _) = p.communicate()
     log = log.decode()
     log = log.strip('\n\x1e').split("\x1e")
-    log = [row.strip().split("\x1f") for row in log]
-    log = [dict(zip(git_commit_fields, row)) for row in log]
+    log = (row.strip().split("\x1f") for row in log)
+    log = (dict(zip(git_commit_fields, row)) for row in log)
 
     # Now we need to count the number of line additions and deletions are
     # associated with a particular bug. To do this we will check the commit message
