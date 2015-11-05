@@ -14,11 +14,10 @@ def main():
     repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
     cd(repo_url)  # We will enable this when we have a repo to go through
     repository_info = []
-    lines = get_file_output(filename='test/dnsclient/DnsClientTest.java', repository_info=repository_info)
-    # parse_repo(lines)
+    output = get_file_output(filename='test/dnsclient/DnsClientTest.java')
 
 
-def get_file_output(repository_info, filename):
+def get_file_output(filename):
     # This function will return a list of lines that can be parsed
     # We need to get the git commands to produce the output that we want to parse
     # For simplicity, we are using test.txt as a sample
@@ -81,24 +80,7 @@ def get_file_output(repository_info, filename):
 
     repo_content = (filename, count_add, count_minus)
     print(repo_content)
-    repository_info.append(repo_content)
-
-    # For now we will open a file test.txt and return its contents to simulate this behaviour
-    if False:
-        with open("test.txt", mode='r') as f:
-            logs = f.read()
-            logs = logs.strip().split("\n")
-            f.close()
-            return logs
-
-
-def parse_repo(lines):
-
-    # We need to parse the liens for two things:
-    #   1. +'s and -'s
-    #   A bug in the comment line
-    for line in lines:
-        pass
+    return removed_content
 
 
 def cd(repo_url):
