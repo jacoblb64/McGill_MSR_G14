@@ -1,10 +1,7 @@
 import subprocess
 import os
 import ntpath
-import platform
 import re
-import itertools
-import pprint
 
 __author__ = 'Charles'
 
@@ -18,17 +15,17 @@ def main():
 
 
 def get_file_output(filename):
-    # This function will return a list of lines that can be parsed
-    # We need to get the git commands to produce the output that we want to parse
-    # For simplicity, we are using test.txt as a sample
-    # TODO Implement a proper version of this using the output of the git commands
+    """
+    :param filename: The filename to search for bugs
+    :return: A triple in format $filename $added_lns $removed_lns representing the number of added lines
+    and removed lines that have bug fixes in them
+    """
     git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'stat']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
     options = ' log --follow -p --reverse --stat --format="%s"'
     command = 'git' + options
 
-    print("Trying to run " + command + options % git_log_format + " " + filename)
     p = subprocess.Popen(command % git_log_format + " " + filename, shell=True, stdout=subprocess.PIPE)
     (log, _) = p.communicate()
     log = log.decode()
@@ -54,13 +51,6 @@ def get_file_output(filename):
         if not m1 and not m2:
             pass
         else:
-            if m1:
-                match = m1.group('bug_word')
-                print(str(match))
-            else:
-                match = m2.group('bug_word')
-                print(str(match))
-
             # If we are here then we have a match for a bug. We need to extract the
             # number of additions and deletions
             m = bug_ln_counts.search(row['stat'])
@@ -69,7 +59,6 @@ def get_file_output(filename):
                 count_minus += int(m.group('deletions'))
 
                 lines = row['stat'].split("\n")
-                print(lines)
                 for line in lines:
                     if line.startswith("+ "):
                         added_content.append(line[1:])
