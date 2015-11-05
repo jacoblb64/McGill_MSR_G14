@@ -20,7 +20,7 @@ def get_file_output(filename):
     :return: A triple in format $filename $added_lns $removed_lns representing the number of added lines
     and removed lines that have bug fixes in them
     """
-    git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'stat']
+    git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
     options = ' log --follow -p --reverse --stat --format="%s"'
@@ -53,12 +53,12 @@ def get_file_output(filename):
         else:
             # If we are here then we have a match for a bug. We need to extract the
             # number of additions and deletions
-            m = bug_ln_counts.search(row['stat'])
+            m = bug_ln_counts.search(row['extra'])
             if m:
                 count_add += int(m.group('insertions'))
                 count_minus += int(m.group('deletions'))
 
-                lines = row['stat'].split("\n")
+                lines = row['extra'].split("\n")
                 for line in lines:
                     if line.startswith("+ "):
                         added_content.append(line[1:])
@@ -66,10 +66,12 @@ def get_file_output(filename):
                         removed_content.append(line[1:])
                     else:
                         pass
+                added_content.clear()
+                removed_content.clear()
 
     repo_content = (filename, count_add, count_minus)
     print(repo_content)
-    return removed_content
+    return repo_content
 
 
 def cd(repo_url):
