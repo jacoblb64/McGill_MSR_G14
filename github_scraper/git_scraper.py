@@ -2,6 +2,7 @@ import subprocess
 import os
 import ntpath
 import re
+from statistics import mean
 
 __author__ = 'Charles'
 
@@ -9,10 +10,12 @@ __author__ = 'Charles'
 def main():
     # We need to get repo urls then we call call cd(repo_url)
     repo_urls = get_repo_urls(filename='boa-job-test.txt')  # Using this as dummy input file
+
+    # Now we need to get the output for several repos. We shall do this in parallel
+    # TODO get data for a given number of repos given a file specifying the rep urls
+
     repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
-    cd(repo_url)  # We will enable this when we have a repo to go through
-    repository_info = []
-    output = get_file_output(filename='test/dnsclient/DnsClientTest.java')
+    output = get_repo_data(repo_url)
 
 
 def get_repo_urls(filename):
@@ -27,6 +30,55 @@ def get_repo_urls(filename):
                 repo_urls.append(m.group('repo_url'))
                 print(m.group('repo_url'))
         return repo_urls
+
+
+def get_repo_data(repo_url):
+    """
+    This function mines the data from a repo
+    :param repo_url: The url of the repo to mind
+    :return: A list of data corresponding to each file that had a bug fix
+    """
+    repo_name = cd(repo_url)
+    git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
+    git_log_format = ['%H', '%an', '%ad', '%s', '%b']
+    git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
+    options = ' log --reverse --stat --format="%s"'
+    command = 'git' + options
+
+    p = subprocess.Popen(command % git_log_format, shell=True, stdout=subprocess.PIPE)
+    (log, _) = p.communicate()
+    log = log.decode()
+    log = log.strip('\n\x1e').split("\x1e")
+    log = (row.strip().split("\x1f") for row in log)
+    log = (dict(zip(git_commit_fields, row)) for row in log)
+
+    # Now we need to count the number of line additions and deletions are
+    # associated with a particular bug. To do this we will check the commit message
+    bug_msg = re.compile("(?P<bug_word>bug|bugs|fix|fixed|fixes|fix\s+for|fixes\s+for|defects|patch)",
+                         re.IGNORECASE | re.MULTILINE)
+
+    count_bugs = 0
+    commit_length = []
+    num_commits = 0
+
+    # We need the average commit length, the number of bugs and number of commits
+    for commit in log:
+        m1 = bug_msg.search(commit['message_header'])
+        m2 = bug_msg.search(commit['message_body'])
+        if not m1 and not m2:
+            pass
+        else:
+            # If we are here then we have a match for a bug. We need to extract the
+            # number of additions and deletions
+            commit_length.append(len(commit['message_header']) + len(commit['message_body']))
+            count_bugs += 1
+        num_commits += 1
+
+    # Now we need to to get the average number of commits
+    avg_commits = mean(commit_length)
+    repo_content = (repo_name, avg_commits, count_bugs, num_commits)
+    print(repo_content)
+    return repo_content
 
 
 def get_file_output(filename):
@@ -99,6 +151,7 @@ def cd(repo_url):
             print("Unable to clone git repo")
             exit(0)
     os.chdir(dir_name)
+    return dir_name
 
 
 if __name__ == '__main__':
