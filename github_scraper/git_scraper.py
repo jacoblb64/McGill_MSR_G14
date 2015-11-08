@@ -4,6 +4,7 @@ import ntpath
 import re
 from statistics import mean
 import concurrent.futures
+import json
 
 __author__ = 'Charles'
 
@@ -22,12 +23,10 @@ def main():
     # repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
     # output = get_repo_data(repo_url)
     print("We got info for {} out of {} repositories".format(len(outputs), len(repo_urls)))
-    outputs = (''.join(output) for output in outputs)
+    # outputs = (' '.join(output) for output in outputs)
     with open("results.txt", 'a') as file:
-        for output in outputs:
-            file.write(output + '\n')
-        else:
-            file.close()
+        json.dump(outputs, file)
+        file.close()
 
 
 def get_repo_urls(filename):
@@ -102,7 +101,8 @@ def get_repo_data(repo_url):
 
     # Now we need to to get the average number of commits
     avg_commits = int(mean(commit_length))
-    repo_content = (repo_name, str(avg_commits), str(count_bugs), str(num_commits))
+    repo_content = {'repo_name': repo_name, 'avg_commits': str(avg_commits),
+                    'num_bugs': str(count_bugs), 'num_commits': str(num_commits)}
     print(repo_content)
     return repo_content
 
