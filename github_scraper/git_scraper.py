@@ -25,7 +25,9 @@ def main():
     print("We got info for {} out of {} repositories".format(len(outputs), len(repo_urls)))
     # outputs = (' '.join(output) for output in outputs)
     with open("results.txt", 'a') as file:
-        json.dump(outputs, file)
+        for output in outputs:
+            file.write(json.dumps(output, sort_keys=False, indent=4, separators=(',', ': ')))
+            file.write('\n')
         file.close()
 
 
