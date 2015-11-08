@@ -3,6 +3,7 @@ import os
 import ntpath
 import re
 from statistics import mean
+import concurrent.futures
 
 __author__ = 'Charles'
 
@@ -11,11 +12,22 @@ def main():
     # We need to get repo urls then we call call cd(repo_url)
     repo_urls = get_repo_urls(filename='boa-job-test.txt')  # Using this as dummy input file
 
-    # Now we need to get the output for several repos. We shall do this in parallel
-    # TODO get data for a given number of repos given a file specifying the rep urls
-
-    repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
-    output = get_repo_data(repo_url)
+    # Now we need to get the output for several repositories. We shall do this in parallel
+    outputs = []
+    with concurrent.futures.ProcessPoolExecutor(max_workers=20) as executor:
+        for repo in repo_urls:
+            future = executor.submit(get_repo_data, repo)
+            outputs.append(future.result())
+        executor.shutdown(wait=True)
+    # repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
+    # output = get_repo_data(repo_url)
+    print("We got info for {} out of {} repositories".format(len(outputs), len(repo_urls)))
+    outputs = (''.join(output) for output in outputs)
+    with open("results.txt", 'a') as file:
+        for output in outputs:
+            file.write(output + '\n')
+        else:
+            file.close()
 
 
 def get_repo_urls(filename):
@@ -29,7 +41,8 @@ def get_repo_urls(filename):
             if m:
                 repo_urls.append(m.group('repo_url'))
                 print(m.group('repo_url'))
-        return repo_urls
+        file.close()
+    return repo_urls
 
 
 def get_repo_data(repo_url):
@@ -47,7 +60,7 @@ def get_repo_data(repo_url):
 
     p = subprocess.Popen(command % git_log_format, shell=True, stdout=subprocess.PIPE)
     (log, _) = p.communicate()
-    log = log.decode()
+    log = log.decode(encoding='ISO-8859-1')
     log = log.strip('\n\x1e').split("\x1e")
     log = (row.strip().split("\x1f") for row in log)
     log = (dict(zip(git_commit_fields, row)) for row in log)
@@ -61,22 +74,35 @@ def get_repo_data(repo_url):
     commit_length = []
     num_commits = 0
 
+    print("Analysing " + repo_name)
+
     # We need the average commit length, the number of bugs and number of commits
     for commit in log:
+
+        if not commit.__contains__('message_body'):
+            continue
+
         m1 = bug_msg.search(commit['message_header'])
-        m2 = bug_msg.search(commit['message_body'])
-        if not m1 and not m2:
-            pass
+
+        msg_bdy = commit.__contains__('message_body')
+        if msg_bdy:
+            m2 = bug_msg.search(commit['message_body'])
         else:
+            m2 = False
+        if m1 or m2:
             # If we are here then we have a match for a bug. We need to extract the
             # number of additions and deletions
-            commit_length.append(len(commit['message_header']) + len(commit['message_body']))
             count_bugs += 1
+        else:
+            if msg_bdy:
+                commit_length.append(len(commit['message_header']) + len(commit['message_body']))
+            else:
+                commit_length.append(len(commit['message_header']))
         num_commits += 1
 
     # Now we need to to get the average number of commits
-    avg_commits = mean(commit_length)
-    repo_content = (repo_name, avg_commits, count_bugs, num_commits)
+    avg_commits = int(mean(commit_length))
+    repo_content = (repo_name, str(avg_commits), str(count_bugs), str(num_commits))
     print(repo_content)
     return repo_content
 
@@ -156,3 +182,4 @@ def cd(repo_url):
 
 if __name__ == '__main__':
     main()
+    # get_repo_data('https://github.com/ovitas/compass2.git')
