@@ -8,10 +8,25 @@ __author__ = 'Charles'
 
 def main():
     # We need to get repo urls then we call call cd(repo_url)
+    repo_urls = get_repo_urls(filename='boa-job-test.txt')  # Using this as dummy input file
     repo_url = "https://bitbucket.org/cgathuru/dnsclient.git"  # Using this as a dummy repo_url
     cd(repo_url)  # We will enable this when we have a repo to go through
     repository_info = []
     output = get_file_output(filename='test/dnsclient/DnsClientTest.java')
+
+
+def get_repo_urls(filename):
+    repo_urls = []
+    rp = re.compile("(?P<repo_url>https://.+\.git)", re.IGNORECASE)
+
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            m = rp.search(line)
+            if m:
+                repo_urls.append(m.group('repo_url'))
+                print(m.group('repo_url'))
+        return repo_urls
 
 
 def get_file_output(filename):
@@ -79,7 +94,7 @@ def cd(repo_url):
     if not os.path.exists(dir_name):
         # We need to clone the repo
         try:
-            subprocess.check_output(['git clone', repo_url])
+            subprocess.check_output(['git', 'clone', repo_url])
         except subprocess.CalledProcessError:
             print("Unable to clone git repo")
             exit(0)
