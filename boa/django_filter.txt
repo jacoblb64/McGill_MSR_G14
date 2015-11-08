@@ -1,0 +1,55 @@
+# Counting the number of active Python projects with SVN
+p:Project = input;
+
+python_projects: output sum of int;
+python_repos: output sum of int;
+empty_list: output collection [int] of string;
+django_projects: output sum of int;
+django_project_committers: output sum[int] of int;
+
+empty := false;
+names: map[string] of bool;
+index := 0;
+
+django := false;
+
+visit(p, visitor {
+  before n: Project -> {
+    ifall (i: int; !match(`^python$`, lowercase(n.programming_languages[i])))
+      stop;
+  }
+  before n: Person -> {
+      names[n.real_name] = true;
+  }
+  after cr: CodeRepository -> {
+    python_repos << 1;
+    if (len(names) == 0) {
+      empty = true;
+    }
+    if (django)
+    {
+      django_projects << 1;
+      django_project_committers[len(names)] << 1;
+    }
+    clear(names);
+  }
+  after n: Project -> {
+    python_projects << 1;
+    if (empty)
+    {
+      index = index + 1;
+    }
+  }
+   # look for imports
+  before node: ASTRoot ->
+      exists(j: int; match("^org\\.django\\.", node.imports[j])) {
+      django = true;
+      stop;
+      }
+  # look for FQN
+  before node: Type ->
+      if (match("^org\\.django\\.", node.name)) {
+      django = true;
+      stop;
+      }
+});
