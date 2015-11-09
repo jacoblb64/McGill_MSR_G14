@@ -80,7 +80,7 @@ def get_repo_data(repo_url):
     # We need the average commit length, the number of bugs and number of commits
     for commit in log:
 
-        if not commit.__contains__('message_body'):
+        if not commit.__contains__('message_header'):
             continue
 
         m1 = bug_msg.search(commit['message_header'])
@@ -103,8 +103,8 @@ def get_repo_data(repo_url):
 
     # Now we need to to get the average number of commits
     avg_commits = int(mean(commit_length))
-    repo_content = {'repo_name': repo_name, 'avg_commits': str(avg_commits),
-                    'num_bugs': str(count_bugs), 'num_commits': str(num_commits)}
+    repo_content = {'repo_name': repo_name, 'avg_commits': avg_commits,
+                    'num_bugs': count_bugs, 'num_commits': num_commits}
     print(repo_content)
     return repo_content
 
