@@ -1,0 +1,16 @@
+java_committers_gt3_commits_gt700[9810] = https://github.com/mtresearcher/mosesdecoder.git
+java_committers_gt3_commits_gt700[9812] = https://github.com/dmikurube/OpenModelica.git
+java_committers_gt3_commits_gt700[9819] = https://github.com/samueldotj/TeeRISC-Simulator.git
+java_committers_gt3_commits_gt700[9824] = https://github.com/i2p/i2p.i2p.git
+java_committers_gt3_commits_gt700[9831] = https://github.com/jdeolive/geotools-old.git
+java_committers_gt3_commits_gt700[9835] = https://github.com/rSmart/kuali_rice.git
+java_committers_gt3_commits_gt700[9878] = https://github.com/Starlink/starjava.git
+java_committers_gt3_commits_gt700[9915] = https://github.com/KyLinOS/
+java_committers_gt3_commits_gt700[9930] = https://github.com/chiefdome/freetz.git
+java_committers_gt3_commits_gt700[9931] = https://github.com/TeamNyx/sdk.git
+java_committers_gt3_commits_gt700[9941] = https://github.com/and146/SPLAT-ARI.git
+java_committers_gt3_commits_gt700[9973] = https://github.com/cwi-swat/rascal.git
+java_committers_gt3_commits_gt700[9987] = https://github.com/libretro/RetroArch.git
+java_committers_gt3_commits_gt700[9988] = https://github.com/hedgewars/hw.git
+java_committers_gt3_commits_gt700[9991] = https://github.com/ppiotr/Invenio.git
+
