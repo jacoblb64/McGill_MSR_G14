@@ -9,7 +9,7 @@ __author__ = 'Charles'
 def main():
     with open('compass2.csv') as csv_file:
         csv_reader = csv.DictReader(csv_file)
-        with open('results.csv', mode='w') as csv_file_out:
+        with open('results.csv', mode='w', newline='') as csv_file_out:
             fieldnames = csv_reader.fieldnames[0:27]
             commits = [commit for commit in csv_reader if re.search("^[a-z0-9]+$", commit['commit_hash'])]
             commit_hashes = [commit_hash['commit_hash'] for commit_hash in commits]
