@@ -1,7 +1,24 @@
+import sys
 import csv
 import re
 import subprocess
 import os
+maxInt = sys.maxsize
+decrement = True
+
+# Code borrowed from:
+# http://stackoverflow.com/questions/15063936/csv-error-field-larger-than-field-limit-131072
+
+while decrement:
+    # decrease the maxInt value by factor 10 
+    # as long as the OverflowError occurs.
+
+    decrement = False
+    try:
+        csv.field_size_limit(maxInt)
+    except OverflowError:
+        maxInt = int(maxInt/10)
+        decrement = True
 
 __author__ = 'Charles'
 
@@ -37,7 +54,7 @@ def update_dict(commit, commit_lengths, index):
 
 
 def get_commit_length(commit_hash):
-    os.chdir('compass2')
+    os.chdir('jruby')
     git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
