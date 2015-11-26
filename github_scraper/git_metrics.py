@@ -7,7 +7,7 @@ __author__ = 'Charles'
 
 
 def main():
-    with open('compass2.csv') as csv_file:
+    with open('jruby.csv') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         with open('results.csv', mode='w', newline='') as csv_file_out:
             fieldnames = csv_reader.fieldnames[0:27]
