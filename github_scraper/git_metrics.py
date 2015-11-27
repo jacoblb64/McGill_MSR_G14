@@ -4,7 +4,6 @@ import re
 import subprocess
 import os
 
-
 __author__ = 'Charles'
 
 maxInt = sys.maxsize
@@ -32,7 +31,6 @@ while decrement:
 
 def main():
     with open('/home/charles/Downloads/ant.csv') as csv_file:
-
         csv_reader = csv.DictReader(csv_file)
         with open('/home/charles/Projects/ant/results_ant.csv', mode='w', newline='') as csv_file_out:
             fieldnames = csv_reader.fieldnames[0:27]
@@ -40,9 +38,6 @@ def main():
             fieldnames.append('commit_length')
             writer = csv.DictWriter(csv_file_out, fieldnames)
             writer.writeheader()
-            # start_time = time.time()
-            # commits = [pool.apply(process_commit, args=(fieldnames, commit)) for commit in csv_reader]
-            # commits = [process_commit(fieldnames, commit) for commit in csv_reader]
             for index, commit in enumerate(csv_reader):
                 if re.search("^[a-z0-9]+$", commit['commit_hash']):
                     commit_length = get_commit_length(commit['commit_hash'])
@@ -52,8 +47,6 @@ def main():
                     commit = {key: commit[key] for key in commit if key in fieldnames}
                     writer.writerow(commit)
                 print(index)
-            # print('Computation time {} seconds'.format(time.time() - start_time))
-            # writer.writerows(commits)
 
 
 def get_commit_length(commit_hash):
