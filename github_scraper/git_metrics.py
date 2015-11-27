@@ -3,6 +3,10 @@ import csv
 import re
 import subprocess
 import os
+
+
+__author__ = 'Charles'
+
 maxInt = sys.maxsize
 decrement = True
 
@@ -20,45 +24,44 @@ while decrement:
         maxInt = int(maxInt/10)
         decrement = True
 
-__author__ = 'Charles'
+# Parallel 113.13 seconds
+# Parallel + write
+# Sequential time 172.2 seconds
+# Sequential + write 97.257 seconds
 
 
 def main():
-    with open('jruby.csv') as csv_file:
+    with open('/home/charles/Downloads/ant.csv') as csv_file:
+
         csv_reader = csv.DictReader(csv_file)
-        with open('results.csv', mode='w', newline='') as csv_file_out:
+        with open('/home/charles/Projects/ant/results_ant.csv', mode='w', newline='') as csv_file_out:
             fieldnames = csv_reader.fieldnames[0:27]
-            commits = [commit for commit in csv_reader if re.search("^[a-z0-9]+$", commit['commit_hash'])]
-            commit_hashes = [commit_hash['commit_hash'] for commit_hash in commits]
-            print(commit_hashes)
-            commit_lengths = [get_commit_length(commit_hash) for commit_hash in commit_hashes]
-            print("Commit hashes: {} commit lengths {}", format(len(commit_hashes)), len(commit_lengths))
+            fieldnames.append('commit_words')
             fieldnames.append('commit_length')
-            print(commit_lengths)
-            commits = [update_dict(commit, commit_lengths, index)
-                       for index, commit in enumerate(commits, start=0)]
-            print(fieldnames)
             writer = csv.DictWriter(csv_file_out, fieldnames)
             writer.writeheader()
-            commits = [filter_commits(commit, fieldnames) for commit in commits]
-            writer.writerows(commits)
-
-
-def filter_commits(commit, fieldnames):
-    return {key: commit[key] for key in commit if fieldnames.__contains__(key)}
-
-
-def update_dict(commit, commit_lengths, index):
-    commit.update({'commit_length': commit_lengths[index]})
-    return commit
+            # start_time = time.time()
+            # commits = [pool.apply(process_commit, args=(fieldnames, commit)) for commit in csv_reader]
+            # commits = [process_commit(fieldnames, commit) for commit in csv_reader]
+            for index, commit in enumerate(csv_reader):
+                if re.search("^[a-z0-9]+$", commit['commit_hash']):
+                    commit_length = get_commit_length(commit['commit_hash'])
+                    commit_words = len(re.findall(r'\w+', commit['commit_message']))
+                    commit.update({'commit_words': commit_words})
+                    commit.update({'commit_length': commit_length})
+                    commit = {key: commit[key] for key in commit if key in fieldnames}
+                    writer.writerow(commit)
+                print(index)
+            # print('Computation time {} seconds'.format(time.time() - start_time))
+            # writer.writerows(commits)
 
 
 def get_commit_length(commit_hash):
-    os.chdir('jruby')
+    os.chdir('/home/charles/Projects/ant')
     git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
-    options = ' show --format="%s" {}'.format(commit_hash)
+    options = ' log -n 1 --format="%s" {}'.format(commit_hash)
     command = 'git' + options
 
     p = subprocess.Popen(command % git_log_format, shell=True, stdout=subprocess.PIPE)
@@ -69,13 +72,15 @@ def get_commit_length(commit_hash):
     log = (dict(zip(git_commit_fields, row)) for row in log)
     os.chdir('..')
     for commit in log:
-        if not commit.__contains__('message_header'):
-            return -1
-        msg_bdy = commit.__contains__('message_body')
+        if 'message_header' not in commit:
+            print('Error: no commit header found')
+            return 0
+        msg_bdy = 'message_body' in commit
+
         if msg_bdy:
-            return len(commit['message_header']) + len(commit['message_body'])
+            return 1 + len(re.findall(r'\n', commit['message_body'])) + 1
         else:
-            return len(commit['message_header'])
+            return 1
 
 
 if __name__ == '__main__':
