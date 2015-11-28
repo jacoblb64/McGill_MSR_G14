@@ -3,6 +3,7 @@ import csv
 import re
 import subprocess
 import os
+import argparse
 
 __author__ = 'Charles'
 
@@ -30,9 +31,18 @@ while decrement:
 
 
 def main():
-    with open('/home/charles/Downloads/ant.csv') as csv_file:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--path', default='.', dest='project_path', type=str,
+                        help='project folder name')
+    parser.add_argument('-f', '--filename', dest='csv_path', required=True, metavar='data.csv',
+                        type=str, help='csv file including path')
+
+    args = parser.parse_args()
+    project_path = args.project_path
+    csv_path = args.csv_path
+    with open(csv_path) as csv_file:
         csv_reader = csv.DictReader(csv_file)
-        with open('/home/charles/Projects/ant/results_ant.csv', mode='w', newline='') as csv_file_out:
+        with open(project_path + 'results.csv', mode='w', newline='') as csv_file_out:
             fieldnames = csv_reader.fieldnames[0:27]
             fieldnames.append('commit_words')
             fieldnames.append('commit_length')
@@ -40,7 +50,7 @@ def main():
             writer.writeheader()
             for index, commit in enumerate(csv_reader):
                 if re.search("^[a-z0-9]+$", commit['commit_hash']):
-                    commit_length = get_commit_length(commit['commit_hash'])
+                    commit_length = get_commit_length(commit['commit_hash'], project_path)
                     commit_words = len(re.findall(r'\w+', commit['commit_message']))
                     commit.update({'commit_words': commit_words})
                     commit.update({'commit_length': commit_length})
@@ -49,8 +59,8 @@ def main():
                 print(index)
 
 
-def get_commit_length(commit_hash):
-    os.chdir('/home/charles/Projects/ant')
+def get_commit_length(commit_hash, project_path):
+    os.chdir(project_path)
     git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
     git_log_format = ['%H', '%an', '%ad', '%s', '%b']
     git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
