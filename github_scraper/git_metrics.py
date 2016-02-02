@@ -4,6 +4,7 @@ import re
 import subprocess
 import os
 import argparse
+import ntpath
 
 __author__ = 'Charles'
 
@@ -33,30 +34,37 @@ while decrement:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', default='.', dest='project_path', type=str,
-                        help='project folder name')
+                        metavar='/home/Downloads/', help='project folder name')
     parser.add_argument('-f', '--filename', dest='csv_path', required=True, metavar='data.csv',
                         type=str, help='csv file including path')
 
     args = parser.parse_args()
     project_path = args.project_path
     csv_path = args.csv_path
+
+    commit_structure = re.compile('^\[', re.IGNORECASE | re.MULTILINE)
     with open(csv_path) as csv_file:
         csv_reader = csv.DictReader(csv_file)
-        with open(project_path + 'results.csv', mode='w', newline='') as csv_file_out:
-            fieldnames = csv_reader.fieldnames[0:27]
+        print(os.path.splitext(ntpath.basename(csv_path))[0])
+        if project_path is not '.':
+            out_file = os.path.join(project_path, (os.path.splitext(ntpath.basename(csv_path))[0] + '_results.csv'))
+        else:
+            out_file = os.path.splitext(csv_path)[0] + '_results.csv'
+        print(out_file)
+        with open(out_file, mode='w', newline='') as csv_file_out:
+            fieldnames = list()
+            fieldnames.append(csv_reader.fieldnames[0])
+            fieldnames += csv_reader.fieldnames[5:8] + csv_reader.fieldnames[9:27]
             fieldnames.append('commit_words')
-            fieldnames.append('commit_length')
+            fieldnames.append('commit_structure')
             writer = csv.DictWriter(csv_file_out, fieldnames)
             writer.writeheader()
             for index, commit in enumerate(csv_reader):
                 if re.search("^[a-z0-9]+$", commit['commit_hash']):
-                    commit_length = get_commit_length(commit['commit_hash'], project_path)
                     commit_words = len(re.findall(r'\w+', commit['commit_message']))
                     commit.update({'commit_words': commit_words})
-                    commit.update({'commit_length': commit_length})
                     commit = {key: commit[key] for key in commit if key in fieldnames}
                     writer.writerow(commit)
-                print(index)
 
 
 def get_commit_length(commit_hash, project_path):
