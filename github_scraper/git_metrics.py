@@ -42,7 +42,8 @@ def main():
     project_path = args.project_path
     csv_path = args.csv_path
 
-    commit_struct_pat = re.compile('^(.{,20})((\[)|(fix)|(close)|(#\d+)|(sign)|(release)|(upgrade)|(bug)|(version))', re.IGNORECASE | re.MULTILINE)
+    commit_struct_pat = re.compile('^(.{,20})((\[)|(fix)|(close)|(#\d+)|(sign)|(release)|(upgrade)|(bug)|(version))',
+                                   re.IGNORECASE | re.MULTILINE)
     with open(csv_path) as csv_file:
         csv_reader = csv.DictReader(csv_file)
         print(os.path.splitext(ntpath.basename(csv_path))[0])
@@ -59,7 +60,7 @@ def main():
             fieldnames.append('commit_structure')
             writer = csv.DictWriter(csv_file_out, fieldnames)
             writer.writeheader()
-            for index, commit in enumerate(csv_reader):
+            for commit in enumerate(csv_reader):
                 if re.search("^[a-z0-9]+$", commit['commit_hash']):
                     commit_words = len(re.findall(r'\w+', commit['commit_message']))
                     commit_structure = False
