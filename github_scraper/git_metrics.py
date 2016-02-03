@@ -34,7 +34,7 @@ while decrement:
 # Sequential + write 97.257 seconds
 
 fieldnames = ['commit_hash', 'commit_message', 'fix', 'classification', 'contains_bug', 'ns',
-              'nd', 'nf', 'entrophy', 'la', 'ld', 'ndev', 'age', 'nuc', 'exp', 'rexp', 'sexp',
+              'nd', 'nf', 'entrophy', 'la', 'ld', 'lt', 'ndev', 'age', 'nuc', 'exp', 'rexp', 'sexp',
               'glm_probability', 'project_name', 'commit_words', 'commit_structure']
 
 
