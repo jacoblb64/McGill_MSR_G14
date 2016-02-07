@@ -7,6 +7,8 @@ import argparse
 import ntpath
 import concurrent.futures
 import multiprocessing
+from nltk.corpus import stopwords
+from nltk import sent_tokenize
 
 __author__ = 'Charles'
 
@@ -90,14 +92,18 @@ def main():
     # parse_file(csv_path, project_path, commit_struct_pat)
 
 
-def parse_file(filename, commit_struct_pat, queue: multiprocessing.Queue):
+def parse_file(filename: str, commit_struct_pat, queue: multiprocessing.Queue, stop_words: set):
     project_name = os.path.splitext(ntpath.basename(filename))[0]
     with open(filename) as csv_file:
         csv_reader = csv.DictReader(csv_file)
         commits = []
         for commit in csv_reader:
             if re.search("^[a-z0-9]+$", commit['commit_hash']):
-                commit_words = len(re.findall(r'\w+', commit['commit_message']))
+                useful_words = [word for sentence in sent_tokenize(commit['commit_message'])
+                                for word in re.findall(r'\w+', sentence, flags=re.UNICODE | re.LOCALE)
+                                if word not in stop_words]
+                # commit_words = len(re.findall(r'\w+', commit['commit_message']))
+                commit_words = len(useful_words)
                 commit_structure = False
                 if re.search(commit_struct_pat, commit['commit_message']):
                     commit_structure = True
@@ -110,7 +116,7 @@ def parse_file(filename, commit_struct_pat, queue: multiprocessing.Queue):
             queue.put(list(commits))
 
 
-def file_writer(dest_filename, queue, token):
+def file_writer(dest_filename, queue: multiprocessing.Queue, token):
     with open(dest_filename, mode='w', newline='') as dest_file:
 
         writer = csv.DictWriter(dest_file, fieldnames)
@@ -128,6 +134,14 @@ def set_up(outfile: str, files: list):
                                    '(id))', re.IGNORECASE | re.MULTILINE)
     queue = multiprocessing.Queue()
 
+    stop_words = stopwords.words('english')
+    with open('stop-word-list.txt', mode='r') as stop_word_file:
+        for line in stop_word_file:
+            cur_line = line.replace('\n', '')
+            if cur_line not in stop_words:
+                stop_words.append(cur_line)
+        else:
+            stop_words = set(stop_words)
     stop_token = ''
     writer_process = multiprocessing.Process(target=file_writer, args=(outfile, queue, stop_token))
     writer_process.start()
@@ -135,7 +149,7 @@ def set_up(outfile: str, files: list):
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         for file in files:
             # Do some work here
-            executor.submit(parse_file, file, commit_struct_pat, queue)
+            executor.submit(parse_file, file, commit_struct_pat, queue, stop_words)
         executor.shutdown(wait=True)
 
     # Dispatch jobs
