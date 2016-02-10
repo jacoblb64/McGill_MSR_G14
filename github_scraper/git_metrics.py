@@ -1,7 +1,6 @@
 import sys
 import csv
 import re
-import subprocess
 import os
 import argparse
 import ntpath
@@ -37,7 +36,7 @@ while decrement:
 
 fieldnames = ['commit_hash', 'commit_message', 'fix', 'classification', 'contains_bug', 'ns',
               'nd', 'nf', 'entrophy', 'la', 'ld', 'lt', 'ndev', 'age', 'nuc', 'exp', 'rexp', 'sexp',
-              'glm_probability', 'project_name', 'commit_words', 'commit_structure']
+              'glm_probability', 'project_name', 'commit_words']
 
 
 def main():
@@ -84,15 +83,8 @@ def main():
 
     set_up(out_file, files)
 
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-    # for file in files:
-    # Do some work here
-    # executor.submit(parse_file, file, project_path, commit_struct_pat)
-    # executor.shutdown(wait=True)
-    # parse_file(csv_path, project_path, commit_struct_pat)
 
-
-def parse_file(filename: str, commit_struct_pat, queue: multiprocessing.Queue, stop_words: set):
+def parse_file(filename: str, queue: multiprocessing.Queue, stop_words: set):
     project_name = os.path.splitext(ntpath.basename(filename))[0]
     with open(filename) as csv_file:
         csv_reader = csv.DictReader(csv_file)
@@ -104,11 +96,7 @@ def parse_file(filename: str, commit_struct_pat, queue: multiprocessing.Queue, s
                                 if word not in stop_words]
                 # commit_words = len(re.findall(r'\w+', commit['commit_message']))
                 commit_words = len(useful_words)
-                commit_structure = False
-                if re.search(commit_struct_pat, commit['commit_message']):
-                    commit_structure = True
                 commit.update({'commit_words': commit_words})
-                commit.update({'commit_structure': commit_structure})
                 commit.update({'project_name': project_name})
                 commit = {key: commit[key] for key in commit if key in fieldnames}
                 commits.append(commit)
@@ -130,8 +118,7 @@ def file_writer(dest_filename, queue: multiprocessing.Queue, token):
 
 
 def set_up(outfile: str, files: list):
-    commit_struct_pat = re.compile('^(.{,20})((\[)|(fix)|(close)|(#\d+)|(sign)|(release)|(upgrade)|(bug)|(version)|'
-                                   '(id))', re.IGNORECASE | re.MULTILINE)
+
     queue = multiprocessing.Queue()
 
     stop_words = stopwords.words('english')
@@ -148,43 +135,12 @@ def set_up(outfile: str, files: list):
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         for file in files:
-            # Do some work here
-            executor.submit(parse_file, file, commit_struct_pat, queue, stop_words)
+            # Dispatch jobs
+            executor.submit(parse_file, file, queue, stop_words)
         executor.shutdown(wait=True)
-
-    # Dispatch jobs
-
-    # Make sure finished
 
     queue.put(stop_token)
     writer_process.join()
-
-
-def get_commit_length(commit_hash, project_path):
-    os.chdir(project_path)
-    git_commit_fields = ['id', 'author_name', 'date', 'message_header', 'message_body', 'extra']
-    git_log_format = ['%H', '%an', '%ad', '%s', '%b']
-    git_log_format = '%x1e' + '%x1f'.join(git_log_format) + '%x1f'
-    options = ' log -n 1 --format="%s" {}'.format(commit_hash)
-    command = 'git' + options
-
-    p = subprocess.Popen(command % git_log_format, shell=True, stdout=subprocess.PIPE)
-    (log, _) = p.communicate()
-    log = log.decode(encoding='ISO-8859-1')
-    log = log.strip('\n\x1e').split("\x1e")
-    log = (row.strip().split("\x1f") for row in log)
-    log = (dict(zip(git_commit_fields, row)) for row in log)
-    os.chdir('..')
-    for commit in log:
-        if 'message_header' not in commit:
-            print('Error: no commit header found')
-            return 0
-        msg_bdy = 'message_body' in commit
-
-        if msg_bdy:
-            return 1 + len(re.findall(r'\n', commit['message_body'])) + 1
-        else:
-            return 1
 
 
 if __name__ == '__main__':
