@@ -48,6 +48,9 @@ def main():
     if choose == 3:
         fn3(csv_path)
         return
+    if choose == 4:
+        remove_extraneous(csv_path)
+        return
 
     print 'opening csv...'
 
@@ -102,7 +105,7 @@ def main():
         count += 1
 
     # create any directories that weren't created
-    for num in range(1, setcount + 1)
+    for num in range(1, setcount + 1):
         hamdir = "Data/Ham/Set" + str(num)
         spamdir = "Data/Spam/Set" + str(num)
         if not os.path.exists(hamdir):
@@ -155,6 +158,44 @@ def fn3(csv_path):
     writer = csv.DictWriter(open('Data/sorted_ratios.csv', 'w'), reader.fieldnames)
     writer.writeheader()
     writer.writerows(result)
+
+# not working yet
+def remove_extraneous(csv_path):
+    with open(csv_path) as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        with open('results_lite.csv', mode='w') as csv_file_out:
+            fieldnames = csv_reader.fieldnames
+
+            # remove extraneous columns
+            # fieldnames.remove('commit_hash')
+            # fieldnames.remove('commit_message')
+
+            unwanted = ['commit_hash', 'commit_message']
+
+            writer = csv.DictWriter(csv_file_out, fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            for index, commit in enumerate(csv_reader):
+                commit = {k: commit[k] for k in commit if k not in unwanted}
+                print index
+                writer.writerow(commit)
+
+    with open('results_lite.csv') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        with open('results_lite2.csv', mode='w') as csv_file_out:
+            fieldnames = csv_reader.fieldnames
+
+            # remove extraneous columns
+            fieldnames.remove('commit_hash')
+            fieldnames.remove('commit_message')
+
+            # unwanted = ['commit_hash', 'commit_message']
+
+            writer = csv.DictWriter(csv_file_out, fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            for index, commit in enumerate(csv_reader):
+                # commit = {k: commit[k] for k in commit if k not in unwanted}
+                print 'x2 ' + str(index)
+                writer.writerow(commit)
 
 if __name__ == "__main__":
     main()
