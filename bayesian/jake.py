@@ -167,35 +167,36 @@ def remove_extraneous(csv_path):
             fieldnames = csv_reader.fieldnames
 
             # remove extraneous columns
-            # fieldnames.remove('commit_hash')
+            #fieldnames.remove('commit_hash')
             # fieldnames.remove('commit_message')
 
             unwanted = ['commit_hash', 'commit_message']
+            fieldnames = [name for name in fieldnames if name not in unwanted]
 
-            writer = csv.DictWriter(csv_file_out, fieldnames, extrasaction='ignore')
+            writer = csv.DictWriter(csv_file_out, fieldnames)
             writer.writeheader()
             for index, commit in enumerate(csv_reader):
                 commit = {k: commit[k] for k in commit if k not in unwanted}
-                print index
+                # print(index)
                 writer.writerow(commit)
 
-    with open('results_lite.csv') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-        with open('results_lite2.csv', mode='w') as csv_file_out:
-            fieldnames = csv_reader.fieldnames
+    # with open('results_lite.csv') as csv_file:
+    #     csv_reader = csv.DictReader(csv_file)
+    #     with open('results_lite2.csv', mode='w') as csv_file_out:
+    #         fieldnames = csv_reader.fieldnames
 
-            # remove extraneous columns
-            fieldnames.remove('commit_hash')
-            fieldnames.remove('commit_message')
+    #         # remove extraneous columns
+    #         fieldnames.remove('commit_hash')
+    #         fieldnames.remove('commit_message')
 
-            # unwanted = ['commit_hash', 'commit_message']
+    #         # unwanted = ['commit_hash', 'commit_message']
 
-            writer = csv.DictWriter(csv_file_out, fieldnames, extrasaction='ignore')
-            writer.writeheader()
-            for index, commit in enumerate(csv_reader):
-                # commit = {k: commit[k] for k in commit if k not in unwanted}
-                print 'x2 ' + str(index)
-                writer.writerow(commit)
+    #         writer = csv.DictWriter(csv_file_out, fieldnames, extrasaction='ignore')
+    #         writer.writeheader()
+    #         for index, commit in enumerate(csv_reader):
+    #             # commit = {k: commit[k] for k in commit if k not in unwanted}
+    #             print 'x2 ' + str(index)
+    #             writer.writerow(commit)
 
 if __name__ == "__main__":
     main()
