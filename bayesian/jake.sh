@@ -45,6 +45,7 @@ python timcv.py \
 	-o TestDriver:show_histograms:False \
 	-o TestDriver:show_false_positives:False \
 	-o TestDriver:show_unsure:False \
+    -o TestDriver:save_trained_pickles:True \
 -n $NUM_SETS | tee classification_log.txt
 
 # sort data
