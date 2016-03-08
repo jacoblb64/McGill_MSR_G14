@@ -19,6 +19,47 @@ while decrement:
         decrement = True
 
 
+def commits_count():
+    csv_path = sys.argv[1]
+
+    with open(csv_path, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        app = {}
+        for commit in csv_reader:
+            if commit['name'] not in app:
+                app[commit['name']] = 1
+            else:
+                app[commit['name']] += 1
+        with open('cpp.txt', mode='w') as outfile:
+            for project in sort_dict_by_key(app):
+                if app[project] < 700:
+                    print(project + " " + str(app[project]) + "\n")
+                outfile.write(project + " " + str(app[project]) + "\n")
+
+
+def author_count():
+    csv_path = sys.argv[1]
+
+    with open(csv_path, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        app = {}
+        for commit in csv_reader:
+            if commit['name'] not in app:
+                app[commit['name']] = set()
+                app[commit['name']].add(commit['author_name'])
+            else:
+                app[commit['name']].add(commit['author_name'])
+        with open('app.txt', mode='w') as outfile:
+            for project in sort_dict_by_key(app):
+                if len(app[project]) < 10:
+                    print(project + " " + str(len(app[project])) + "\n")
+                outfile.write(project + " " + str(len(app[project])) + "\n")
+
+
+def sort_dict_by_key(data: dict):
+    return sorted(list(data), key=str.lower)
+
+
 def main():
     csv_path = sys.argv[1]
 
@@ -35,4 +76,6 @@ def main():
                 csv_writer.writerow(dict(commit))
 
 if __name__ == '__main__':
-    main()
+    # main()
+    # author_count()
+    commits_count()
