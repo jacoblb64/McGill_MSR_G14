@@ -10,7 +10,7 @@ pred.probs <- function(fit, data) {
   return(probs)
 }
 
-brier <- function(fit, data) {
+performance.brier <- function(fit, data) {
   probs <- pred.probs(fit, data)
   resids <- ifelse(data$buggy == T, 1, 0)-probs
   return(sum(resids^2)/nrow(data))
@@ -20,7 +20,7 @@ areauc <- function(x, y) {
   return(sum(diff(x)*rollmean(y,2)))
 }
 
-auc <- function(fit, data) {
+performance.auc <- function(fit, data) {
   probs <- pred.probs(fit, data)
 
   tpr <- c()
