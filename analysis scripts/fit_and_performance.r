@@ -102,7 +102,7 @@ runExperiment <- function(data, metrics, myvar) {
           		colnames(testdata)[which(names(testdata) == "contains_bug")] <- "buggy"
           		testauc <- performance.auc(fit, testdata)
           		testbrier <- performance.brier(fit, testdata)
-          		print(paste("values for", curName, testauc, testbrier, sep=" "))
+          		# print(paste("values for", curName, testauc, testbrier, sep=" "))
 
           	# write new data to the right place
           	# ROW: training project
