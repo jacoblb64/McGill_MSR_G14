@@ -95,7 +95,7 @@ runExperiment <- function(data, metrics, myvar) {
           		return(NA)
           	}
 
-          	print(paste("    ", "Testing on", testName, sep=" "))
+          	# print(paste("    ", "Testing on", testName, sep=" "))
           	summary(testdata)
 
           	tryCatch({
