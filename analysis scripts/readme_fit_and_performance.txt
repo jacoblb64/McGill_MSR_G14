@@ -31,7 +31,7 @@ For merging the data together:
 - Try to maintain the naming convention of aucTable and brierTable,
   with the suffixes for the projects included
 
-- don't save R upon exiting, as .Rdata will be massive
+- don't save R workspace image upon exiting, as .Rdata will be massive
   instead, use the savehistory() command before exiting
 
 - check .Rdata for examples and a history of execution if you have
@@ -46,3 +46,8 @@ IMPORTANT:
   from there, you can calculate how long a set number of projects take
 
 - Indicies are inclusive, so start at the number after the last one left off
+
+- Packages might have to be downloaded prior to running, use the command
+  install.packages('package_to_be_downloaded')
+  and follow the onscreen instructions
+  e.g.: install.packages('rms')
