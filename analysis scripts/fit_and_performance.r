@@ -3,7 +3,8 @@ require(plyr)
 source('analysis scripts/performance.r')
 
 # Configuration settings
-metrics = c("classification", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
+# switched to "fix" instead of "classification"
+metrics = c("fix", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
 rq1 = "commit_words"
 rq2 = "bayesian_score"
 depVar <- "contains_bug"
@@ -26,7 +27,11 @@ subsetOkForFit <- function(data) {
           )
 }
 
-runExperiment <- function(data, metrics, myvar) {
+runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 1234) {
+
+  startTime = Sys.time()
+
+  # including rq1 into the analysis of rq2
   rq = "rq"
   if (myvar	== rq2) {
   	met <- append(metrics, rq1)
@@ -37,20 +42,29 @@ runExperiment <- function(data, metrics, myvar) {
     rq = "rq1"
   }
 
-  # create blank data frames for AUC and Brier
   names <- unique(data$name)
   names <- names[order(names)]
-  aucTable <<- data.frame(names)
+
+  # create subset
+  subset <- data[ which(data$name %in% names[subsetStart:subsetEnd]),]
+
+  subsetNames <- names[subsetStart:subsetEnd]
+
+  # create blank data frames for AUC and Brier
+  aucTable <<- data.frame(subsetNames)
   names(aucTable) = "name"
 
   for(name in names) {
   	aucTable[, name] <<- NA
   }
 
+  # Table already prepared
+  # aucTable = read.csv('data/blankTable.csv')
+
   brierTable <<- aucTable
 
 
-  rtn <- ddply(data, "name",
+  rtn <- ddply(subset, "name",
     function(mydata) {
   	  curName <<- as.character(mydata$name[1])
 
@@ -65,10 +79,13 @@ runExperiment <- function(data, metrics, myvar) {
       # aucTable[, curName] <<- NA
       # brierTable[, curName] <<- NA
 
+      # add
+
       if (subsetOkForFit(mydata)) {
         cleanMetrics <- getCleanMetrics(met, mydata)
         form <- paste(depVar, paste(cleanMetrics, collapse=" + "), sep = " ~ ")
         tryCatch({
+          options(drop.unused.levels = FALSE)
           fit <- lrm(as.formula(form), data=mydata, x=T, y=T, penalty=penaltySetting)
 
           # Validation results
@@ -96,7 +113,6 @@ runExperiment <- function(data, metrics, myvar) {
           	}
 
           	# print(paste("    ", "Testing on", testName, sep=" "))
-          	summary(testdata)
 
           	tryCatch({
           		colnames(testdata)[which(names(testdata) == "contains_bug")] <- "buggy"
@@ -104,11 +120,11 @@ runExperiment <- function(data, metrics, myvar) {
           		testbrier <- performance.brier(fit, testdata)
           		# print(paste("values for", curName, testauc, testbrier, sep=" "))
 
-          	# write new data to the right place
-          	# ROW: training project
-          	# Column: testing project
-			aucTable[which(aucTable$name == curName), testName] <<- testauc
-          	brierTable[which(aucTable$name == curName), testName] <<- testbrier
+	          	# write new data to the right place
+	          	# ROW: training project
+	          	# Column: testing project
+				aucTable[which(aucTable$name == curName), testName] <<- testauc
+	          	brierTable[which(aucTable$name == curName), testName] <<- testbrier
 
           	}, error = function(e) {
           		print(paste("Test Failed on", testName, sep=" "))
@@ -116,7 +132,7 @@ runExperiment <- function(data, metrics, myvar) {
 
           	return(NA)
 
-          })
+          }, .progress = "text")
 
 
 
@@ -130,17 +146,18 @@ runExperiment <- function(data, metrics, myvar) {
       } else {
       	print(paste("data not OK for fit, skipping"))
       }
+
+      write.csv(aucTable, paste("data", "new", rq, paste("aucTable", subsetStart, "-", subsetEnd, ".csv", sep = ""), sep="/"))
+	  write.csv(brierTable, paste("data", "new", rq, paste("brierTable", subsetStart, "-", subsetEnd, ".csv", sep = ""), sep="/"))
         
       return(NA)
       # return(c(auc, brier, dropVal, dropPVal))
-    })
+    }, .progress = "text")
 
   # names(rtn) <- c("proj", "AUC", "Brier", "Chi", "Pval")
 
-  write.csv(aucTable, paste("data", "new", rq, "aucTable.csv", sep="/"))
-  write.csv(brierTable, paste("data", "new", rq, "brierTable.csv", sep="/"))
-
-  return(aucTable)
+  endTime = Sys.time()
+  return(endTime - startTime)
 }
 
 testFunction <- function() {

@@ -3,6 +3,8 @@ require(plyr)
 
 # Configuration settings
 metrics = c("classification", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
+# switching to "fix" instead of "classification"
+# metrics = c("fix", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
 rq1 = "commit_words"
 rq2 = "bayesian_score"
 depVar <- "contains_bug"
@@ -27,6 +29,9 @@ subsetOkForFit <- function(data) {
 
 runExperiment <- function(data, metrics, myvar) {
   met <- append(metrics, myvar)
+
+  # testing explanatory power of classification
+  # myvar <- "classification"
 
   rtn <- ddply(data, "name",
     function(mydata) {
@@ -62,7 +67,7 @@ runExperiment <- function(data, metrics, myvar) {
       }
         
       return(c(auc, brier, dropVal, dropPVal))
-    })
+    }, .progress = "text")
 
   names(rtn) <- c("proj", "AUC", "Brier", "Chi", "Pval")
 
