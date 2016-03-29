@@ -10,7 +10,7 @@ For performing analysis:
 4. Run the experiment for the rq and bounds desired
 	runExperiment(data, metrics, rqX, Y, Z)
 	where X is the rq#, Y is the start index, and Z is end index, inclusive
-	e.g.: runExperiment(data, rq1, 1, 3) for the first 3 projects
+	e.g.: runExperiment(data, metrics, rq1, 1, 3) for the first 3 projects
 
 
 

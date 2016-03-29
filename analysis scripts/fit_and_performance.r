@@ -125,7 +125,7 @@ runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 123
           		# print(paste("values for", curName, testauc, testbrier, sep=" "))
 
 	          	# write new data to the right place
-	          	# ROW: training project
+	          	# Row: training project
 	          	# Column: testing project
 				aucTable[which(aucTable$name == curName), testName] <<- testauc
 	          	brierTable[which(aucTable$name == curName), testName] <<- testbrier
