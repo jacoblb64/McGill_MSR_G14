@@ -1,6 +1,10 @@
 require(rms)
 require(plyr)
+require(foreach)
 source('analysis scripts/performance.r')
+
+# for paralellization
+# require(doSNOW)
 
 # Configuration settings
 # switched to "fix" instead of "classification"
@@ -27,7 +31,7 @@ subsetOkForFit <- function(data) {
           )
 }
 
-runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 1234) {
+runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 1234, parallel = FALSE) {
 
   startTime = Sys.time()
 
@@ -132,7 +136,7 @@ runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 123
 
           	return(NA)
 
-          }, .progress = "text")
+          }, .progress = "text", .parallel = parallel)
 
 
 
@@ -152,7 +156,8 @@ runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 123
         
       return(NA)
       # return(c(auc, brier, dropVal, dropPVal))
-    }, .progress = "text")
+    }, .progress = "text", .parallel = parallel,
+       .paropts = list(.export=c('subsetOkForFit'), .packages = .packages(all.available=T)))
 
   # names(rtn) <- c("proj", "AUC", "Brier", "Chi", "Pval")
 
