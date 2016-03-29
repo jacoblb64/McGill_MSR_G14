@@ -9,8 +9,9 @@ For performing analysis:
 	source('analysis scripts/fit_and_performance.r')
 4. Run the experiment for the rq and bounds desired
 	runExperiment(data, metrics, rqX, Y, Z)
-	where X is the rq#, Y is the start index, and Z is end Index
+	where X is the rq#, Y is the start index, and Z is end index, inclusive
 	e.g.: runExperiment(data, rq1, 1, 3) for the first 3 projects
+
 
 
 For merging the data together:
@@ -38,4 +39,10 @@ For merging the data together:
 
 IMPORTANT:
 - Upload to Git after every run! So everyone can see what has already been
-  analyzed and what hasn't!
+  analyzed and what hasn't! Pull before pushing though!
+
+- Choose appropriate sized chunks to analyze at a time. I recommend starting
+  with a couple projects, no more than 3 to begin, which should take ~10 mins,
+  from there, you can calculate how long a set number of projects take
+
+- Indicies are inclusive, so start at the number after the last one left off
