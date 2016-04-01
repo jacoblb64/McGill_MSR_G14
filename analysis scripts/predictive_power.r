@@ -30,16 +30,14 @@ process <- function(performance_with, performance_wo) {
 
   for (i in 1:width) {
 
-    trycatch({
-
+    if (!is.na(performance_with[i,3]) && !is.na(performance_wo[i,3])) {
       wilcox <- wilcox.test(as.numeric(performance_with[i,]),
-                            as.numeric(performance_wo[i,3]),
-                            na.action=na.exclude)
+                          as.numeric(performance_wo[i,]),
+                          na.action=na.exclude)
       results[i, 'Pwilcox'] <- as.numeric(wilcox[['p.value']])
-
-    }, error = function(e) {
-      print(paste("failed on", i))
-    })
+    } else {
+      results[i, 'Pwilcox'] <- NA
+    }
 
     setTxtProgressBar(pb, i)
   }
