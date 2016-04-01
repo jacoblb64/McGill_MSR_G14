@@ -11,6 +11,7 @@ source('analysis scripts/performance.r')
 metrics = c("fix", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
 rq1 = "commit_words"
 rq2 = "bayesian_score"
+none = ""
 depVar <- "contains_bug"
 boots = 100
 impactMeasure <- "Chi-Square"
@@ -41,6 +42,9 @@ runExperiment <- function(data, metrics, myvar, subsetStart = 1, subsetEnd = 123
   	met <- append(metrics, rq1)
   	met <- append(met, rq2)
   	rq = "rq2"
+  } else if (myvar == none) {
+  	met <- metrics
+  	rq <- "baseline"
   } else {
     met <- append(metrics, myvar)
     rq = "rq1"
