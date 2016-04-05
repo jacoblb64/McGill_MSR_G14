@@ -1,4 +1,5 @@
 # require(taRifx)
+require(effsize)
 
 wilcoxP = "wilcoxP"
 cdEst = "cdEst"
@@ -16,7 +17,7 @@ cleanTable <- function(table) {
   return(table)
 }
 
-process <- function(performance_with, performance_wo) {
+analyzePredictive <- function(performance_with, performance_wo) {
 
   name <- performance_with$name
 
