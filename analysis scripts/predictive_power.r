@@ -1,4 +1,9 @@
-require(taRifx)
+# require(taRifx)
+
+wilcoxP = "wilcoxP"
+cdEst = "cdEst"
+cdMag = "cdMag"
+newvars = c(wilcoxP, cdEst, cdMag)
 
 # removes metadata and converts all data to numerical
 cleanTable <- function(table) {
@@ -6,7 +11,7 @@ cleanTable <- function(table) {
   table$name <- NULL
   # table <- japply( table, which(sapply(table, class)=="logical"), as.numeric )
 
-  table <- table[rowSums(is.na(table))<1200,]
+  # table <- table[rowSums(is.na(table))<1200,]
 
   return(table)
 }
@@ -22,7 +27,9 @@ process <- function(performance_with, performance_wo) {
   # woMeans = rowMeans(performance_wo, na.rm = TRUE, dims = 1)
 
   results <- data.frame(name)
-  results[,'Pwilcox'] <- NA
+  for (var in newvars) {
+    results[, var] <- NULL
+  }
 
   width <- length(names(performance_with))
 
@@ -34,9 +41,13 @@ process <- function(performance_with, performance_wo) {
       wilcox <- wilcox.test(as.numeric(performance_with[i,]),
                           as.numeric(performance_wo[i,]),
                           na.action=na.exclude)
-      results[i, 'Pwilcox'] <- as.numeric(wilcox[['p.value']])
-    } else {
-      results[i, 'Pwilcox'] <- NA
+      results[i, wilcoxP] <- as.numeric(wilcox[['p.value']])
+
+      cliffs <- cliff.delta(as.numeric(performance_with[i,]),
+                          as.numeric(performance_wo[i,]),
+                          na.action=na.exclude)
+      results[i, cdEst] <- as.numeric(cliffs[['estimate']])
+      results[i, cdMag] <- cliffs[['magnitude']]
     }
 
     setTxtProgressBar(pb, i)
