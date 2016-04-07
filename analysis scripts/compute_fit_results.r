@@ -2,11 +2,12 @@ require(rms)
 require(plyr)
 
 # Configuration settings
-metrics = c("classification", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
+# metrics = c("classification", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
 # switching to "fix" instead of "classification"
-# metrics = c("fix", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
+metrics = c("fix", "ns", "nd", "nf", "entrophy", "la", "ld", "lt", "ndev", "age", "nuc", "exp", "rexp", "sexp")
 rq1 = "commit_words"
 rq2 = "bayesian_score"
+none = ""
 depVar <- "contains_bug"
 boots = 100
 impactMeasure <- "Chi-Square"
@@ -28,7 +29,20 @@ subsetOkForFit <- function(data) {
 }
 
 runExperiment <- function(data, metrics, myvar) {
-  met <- append(metrics, myvar)
+  
+  # including rq1 into the analysis of rq2
+  rq = "rq"
+  if (myvar == rq2) {
+    met <- append(metrics, rq1)
+    met <- append(met, rq2)
+    rq = "rq2"
+  } else if (myvar == none) {
+    met <- metrics
+    rq <- "baseline"
+  } else {
+    met <- append(metrics, myvar)
+    rq = "rq1"
+  }
 
   # testing explanatory power of classification
   # myvar <- "classification"
