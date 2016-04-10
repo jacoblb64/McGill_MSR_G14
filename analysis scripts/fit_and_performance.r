@@ -1,10 +1,10 @@
 require(rms)
 require(plyr)
-require(foreach)
 source('analysis scripts/performance.r')
 
 # for paralellization
 # require(doSNOW)
+# require(foreach)
 
 # Configuration settings
 # switched to "fix" instead of "classification"
