@@ -124,7 +124,7 @@ expBoxPlot <- function(exp1, exp2) {
 	plot <- plot + geom_boxplot()+ theme_bw()
 	plot <- plot + ylab("Percentage of explanatory power")
 	plot <- plot + theme(axis.title.x = element_blank(), legend.position = "none")
-	plot <- plot + scale_y_continuous(labels = scales::percent) + scale_fill_grey(start=0.4)
+	plot <- plot + scale_y_continuous(labels = scales::percent, limits = c(0, 0.9)) + scale_fill_grey(start=0.4)
 
 	ggsave("data/new/expl_power1.pdf", width=2, height=4)
 
@@ -133,7 +133,7 @@ expBoxPlot <- function(exp1, exp2) {
 	plot <- plot + geom_boxplot()+ theme_bw()
 	plot <- plot + ylab("Percentage of explanatory power")
 	plot <- plot + theme(axis.title.x = element_blank(), legend.position = "none")
-	plot <- plot + scale_y_continuous(labels = scales::percent) + scale_fill_grey(start=0.8)
+	plot <- plot + scale_y_continuous(labels = scales::percent, limits = c(0, 0.9)) + scale_fill_grey(start=0.8)
 
 	ggsave("data/new/expl_power2.pdf", width=2, height=4)
 }
