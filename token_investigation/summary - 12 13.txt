@@ -1,0 +1,46 @@
+relationships explored against score:
+	frequency
+		high frequency words generally score higher
+	dictionary word, or close neighbour
+		no apparent relationship
+	more definitions as per wordnet
+		NAR
+	part of speech tagging
+		NAR
+	POS tagging in identified words, and neighbours
+		NAR
+	short list of words: ["stuff", "thing", "things"]
+		score higher
+	longer list of "vague" words and neighbours
+		score higher
+	swear words and neighbours
+		score higher
+
+subsets explored:
+	cutoff for tokens with very low frequency
+		>1
+		>10
+		>100
+		>1000
+		knee: 3 or so?
+	1000 arbitrary
+
+inverse idea, looking at high scoring words for trends:
+	freq > 100, score > 0.8
+
+ideas explored:
+	POS
+	Dictionary word
+	synonyms via wordnet
+	vague words
+	swear words
+
+new ideas:
+	spell check on commit message
+	tag vagueness and then create classifier (commit level)
+		look at spammiest messages
+
+next steps:
+	Select sample size and tag "vague" or not
+	Select top X spammiest messages
+		look for pattern
