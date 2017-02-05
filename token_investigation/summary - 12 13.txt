@@ -44,3 +44,10 @@ next steps:
 	Select sample size and tag "vague" or not
 	Select top X spammiest messages
 		look for pattern
+
+next steps (1-25-17):
+	find buggy and not buggy commits to have representative sample of each (probably 384, but check)
+	mix new set together so when tagging don't know which set it's from
+	see if we find a higher number of vague messages in buggy set
+
+
